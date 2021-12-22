@@ -1,0 +1,36 @@
+#Intro prompt
+Intro message -> print
+prompt for number of participatents -> var
+
+#Main Menu
+print selections
+prompt input 
+check input integrity
+associate each input to function -> switcher
+
+#Sign up
+prompt name
+prompt slot -> integrity check
+check name:slot library, return result
+print result
+
+#Cancel sign up
+prompt name
+prompt slot -> integrity check
+check name:slot library, return result
+print result
+
+#view participants
+prompt slot -> integrity check
+run through -5 and +5 in array
+output 'empty' if None
+
+#save changes
+prompt decision Y/N
+save result to csv -> 2 columns, name and slot
+
+#exit
+prompt exit message
+
+#func-input integrity check (input,type) 
+return bool
