@@ -1,6 +1,8 @@
 # import 
+import time #sleep
 import random #randomizer
 import os #working directory
+from subprocess import run
 # variable declaration
 class c_playerRecord:
     name = []
@@ -127,12 +129,14 @@ def msg(msgID,msgInput='',msgInput2=''):
     elif msgID == m['guess-novowel']:
         print ('Only vowels are left unguessed but you ran out of vowel guesses, please guess the word!')
     elif msgID == m['final-stat']:
-        print ('========== Result ========== ')
-        _count = 0
+        print ('========== Result ==========')
+        _export = 'Name,Bank\r\n'
         for i in range(1,4):
             _index = player.bank.index(max(player.bank))
+            _export = _export + player.name[_index] + ',' + str(player.bank[_index]) + '\r\n'
             print ('%i. %s, bank: %i' %(i,player.name[_index],player.bank[_index]))
-            player.bank.pop(_index)   
+            player.bank[_index] = -1
+        exportFile(_export)
     elif msgID == m['final-win']:
         print ('Congratulations %s, YOU WIN!' %(msgInput))
     return 
@@ -151,12 +155,18 @@ def validate(letter,status=0):
 # reads a list of words from file
 def importWords():
     os.chdir(os.getcwd()+"/WheelofFortune")
-    _file = open(os.getcwd()+'/wordbank.csv')
+    _file = open(os.getcwd()+'/wordbank.csv','r')
     _lines = _file.read().splitlines()
     for i in range(1,len(_lines)): 
         _list = _lines[i].split(',')
         wordBank.words.append(_list[0])
         wordBank.category.append(_list[1])
+    _file.close()
+
+#export file
+def exportFile(text):
+    _file = open(os.getcwd()+'/log.csv','w+') #write
+    _file.write(text)
     _file.close()
 
 # outputs the next playerID based on currentPlayerID
@@ -214,7 +224,7 @@ def guessLogistics(final=False,entryType=0):
     _word = wordBank.words[gameInfo.wordIndex].lower() # correct word
     _ret = False # return value
     _entry = ['consonant','vowel']
-    _str = ['_'] * len(_word) #initialize string to be revealed
+    _str = ['-'] * len(_word) #initialize string to be revealed
     msg(m['guess-welcome'],wordBank.category[gameInfo.wordIndex],len(_word))
     # reveal letters if exist
     if gameInfo.guessed != []:
@@ -261,7 +271,7 @@ def guessLogistics(final=False,entryType=0):
             l_position = [i for i, n in enumerate(_word) if n == _input] # return all index for the guessed letter
             for i in range(0,len(l_position)):
                 _str[l_position[i]] = _input # reveal guessed letters
-            if '_' not in _str: # all letters are guessed
+            if '-' not in _str: # all letters are guessed
                 _ret = True 
                 break
             else: 
@@ -295,9 +305,12 @@ def guessLogistics(final=False,entryType=0):
 # core engine; determines all logistics
 def wheelLogistics(Gamestat=False):
     # check round status
+    msg(m['final-stat'])
     if len(gameInfo.played) >= 3 and Gamestat == False: #if all players have played
         gameInfo.wordIndex = generateWord()
         gameInfo.guessed = []
+        print ('\nLoading new round...')
+        time.sleep(5)
         print ('\n=========== NEW ROUND ===========')
         gameInfo.round += 1 #next round
         gameInfo.played = [] #reset
@@ -307,6 +320,7 @@ def wheelLogistics(Gamestat=False):
         gameInfo.wordIndex = generateWord()
         gameInfo.currentPlayer = player.bank.index(max(player.bank)) 
         msg(m['wheel-finalround'],gameInfo.currentPlayer)
+        time.sleep(5)
         #set vowel price to 0
         gameInfo.vowelPrice = 0
         #reveal letters
@@ -320,6 +334,7 @@ def wheelLogistics(Gamestat=False):
             msg (m['final-win'],player.name[gameInfo.currentPlayer])
             msg (m['final-stat'])
         else:
+            msg(m['guess-fail']) 
             msg (m['final-stat'])
         return
     
@@ -329,6 +344,8 @@ def wheelLogistics(Gamestat=False):
     #prompt spin message
     _input = msg(m['spin'],_round,_name)
     _spinResult = spin()
+    print ('*** Spinning...')
+    time.sleep(2)
     if _name not in gameInfo.played:
         gameInfo.played.append(_name) # record played status
     #lose
@@ -355,6 +372,8 @@ def wheelLogistics(Gamestat=False):
             if guessLogistics(): #win the entire round
                 player.bank[_playerID] += player.pool[_playerID]
                 msg(m['guess-win'],player.pool[_playerID])
+                print ('\nLoading new round...')
+                time.sleep(5)
                 print ('\n=========== NEW ROUND ===========')
                 gameInfo.guessed = []
                 info(1,m['pool'],_playerID,0) 
