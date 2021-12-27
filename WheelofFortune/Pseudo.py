@@ -4,8 +4,11 @@ buyVowels
 bankrupt
 
 #Q: money used to buy vowels is deducted from the pool or actual bank?
+    # -> pool 
 #Q: In the case of the vowel does not appear, do they lose their turn?
-#Q: single word, multiple, or phrase?
+    # -> lose turn 
+#Q: single word, 
+#   stretch -> multiple, or phrase?
 
 #variable
 #currentPlayer = rand (1,3) initialize
